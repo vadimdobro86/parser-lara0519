@@ -1,0 +1,51 @@
+FROM php:7.3-fpm-alpine
+
+    RUN apk update 
+    RUN apk add libmcrypt-dev mysql-client
+
+    RUN apk add --no-cache libpng-dev zlib-dev libzip-dev \
+	&& docker-php-ext-configure zip --with-libzip \
+	&& docker-php-ext-install zip
+
+    RUN apk add --no-cache --virtual .build-deps \
+        $PHPIZE_DEPS \
+        curl-dev \
+	bzip2-dev \
+        imagemagick-dev \
+        libtool \
+        libxml2-dev \
+        postgresql-dev \
+        sqlite-dev \
+    && apk add --no-cache \
+        curl \
+        git \
+        imagemagick \
+        mysql-client \
+        postgresql-libs \
+        libintl \
+        icu \
+        icu-dev \
+    && pecl install imagick \
+    && docker-php-ext-enable imagick \
+    && docker-php-ext-install \
+        curl \
+	bz2 \
+        iconv \
+        mbstring \
+        pdo \
+        pdo_mysql \
+        pdo_pgsql \
+        pdo_sqlite \
+        pcntl \
+        tokenizer \
+        xml \
+        zip \
+        intl \
+    && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
+    && apk del -f .build-deps
+
+    RUN find /var/www/ -type d -exec chmod 0755 {} \;
+    RUN find /var/www/ -type f -exec chmod 0644 {} \;
+    RUN chown -R www-data: /var/www/
+
+    WORKDIR /var/www

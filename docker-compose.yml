@@ -1,0 +1,32 @@
+    version: '2'
+    services:
+        web:
+            build:
+                context: ./
+                dockerfile: web.docker
+            volumes:
+                - ./lar0519/:/var/www
+            ports:
+                - "8080:80"
+            links:
+                - app
+        app:
+            build:
+                context: ./
+                dockerfile: app.docker
+            volumes:
+                - ./lar0519/:/var/www
+            environment:
+                - "DB_PORT=3306"
+                - "DB_HOST=database"
+        database:
+            image: mariadb:latest
+            volumes:
+                - ./dbdata:/var/lib/mysql
+            environment:
+                - "MYSQL_ROOT_PASSWORD=1q2w3e4r"
+                - "MYSQL_DATABASE=laravelguzzle"
+                - "MYSQL_USER=laravelguzzle"
+                - "MYSQL_PASSWORD=1q2w3e4r"
+            ports:
+                - "3306:3306"
